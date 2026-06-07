@@ -1,14 +1,14 @@
 /**
  * HeyGen Audio URL Extractor
- * Author : Muhammad Abdullah Awais — Full Stack Developer
+ * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
- * config.js — Single source of truth for the two configurable values.
+ * config.js: Single source of truth for the two configurable values.
  *
  * Replace the placeholders below to retarget the extension to a different
  * site / audio host. If you change PARENT_WEBSITE_URL, you MUST also update
  * the matching patterns in manifest.json ("content_scripts".matches and
- * "host_permissions") — the manifest cannot import JavaScript, so those are
+ * "host_permissions"); the manifest cannot import JavaScript, so those are
  * the only other place the parent URL appears.
  */
 

@@ -1,15 +1,15 @@
 /**
  * HeyGen Audio URL Extractor
- * Author : Muhammad Abdullah Awais — Full Stack Developer
+ * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
- * content.js — DOM scanner injected on HeyGen pages.
+ * content.js: DOM scanner injected on HeyGen pages.
  *
  * It listens for a { type: "SCAN_AUDIO", prefix } message from the popup and
  * replies with { urls: [...] }: every UNIQUE URL on the page that starts with
  * the given prefix.
  *
- * HeyGen is a React SPA, so audio URLs are frequently NOT plain <audio> tags —
+ * HeyGen is a React SPA, so audio URLs are frequently NOT plain <audio> tags;
  * they hide inside inline JSON, data-* attributes, and script payloads. We
  * therefore build a broad search corpus from many sources rather than only
  * inspecting media elements.
@@ -43,7 +43,7 @@ function cleanUrl(url) {
 function buildSearchCorpus() {
   const chunks = [];
 
-  // 1. The full serialized DOM — catches anything rendered into markup.
+  // 1. The full serialized DOM (catches anything rendered into markup).
   chunks.push(document.documentElement.outerHTML);
 
   // 2. Every attribute of every element. This covers src, href, style,
@@ -64,7 +64,7 @@ function buildSearchCorpus() {
     chunks.push(a.href);
   }
 
-  // 4. Inline <script> contents — React/Next.js hydration data and config
+  // 4. Inline <script> contents: React/Next.js hydration data and config
   //    blobs commonly embed media URLs as JSON strings here.
   for (const script of document.querySelectorAll("script")) {
     if (script.textContent) chunks.push(script.textContent);
@@ -110,7 +110,7 @@ function extractAudioUrls(prefix) {
  */
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!message || message.type !== "SCAN_AUDIO") {
-    return; // Not for us — ignore unknown messages gracefully.
+    return; // Not for us; ignore unknown messages gracefully.
   }
 
   try {

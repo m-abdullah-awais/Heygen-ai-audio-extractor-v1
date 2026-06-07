@@ -1,9 +1,9 @@
 /**
  * HeyGen Audio URL Extractor
- * Author : Muhammad Abdullah Awais — Full Stack Developer
+ * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
- * background.js — minimal Manifest V3 service worker.
+ * background.js: minimal Manifest V3 service worker.
  *
  * The DOM-only / on-click design does not require persistent background work:
  * scanning happens in the content script and the injection fallback lives in

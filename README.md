@@ -1,75 +1,289 @@
-# HeyGen Audio URL Extractor
+# 🎧 HeyGen Audio URL Extractor
 
-A Manifest V3 Chrome extension that activates **only** on `https://app.heygen.com` and extracts every
-audio URL on the current page that begins with `https://resource2.heygen.ai`.
+A simple Chrome extension that helps you **find and collect all the audio files** from your HeyGen video draft, with just one click.
 
-> Built by **Muhammad Abdullah Awais** — Full Stack Developer · [www.abdullahawais.com](https://www.abdullahawais.com)
+No coding. No complicated steps. Just open your video, click **Fetch Audio**, and get all your voiceover audio links instantly. ✨
 
-## Features
+> 👨‍💻 Built by **Muhammad Abdullah Awais** · Full Stack Developer · 🌐 [www.abdullahawais.com](https://www.abdullahawais.com)
 
-- **Website-restricted** — runs only on the configured parent site (manifest-level + popup-level checks).
-- **Thorough DOM scan** — inspects the serialized HTML, every element attribute (incl. `data-*`),
-  `<audio>`/`<video>`/`<source>` tags, anchors, and inline `<script>` JSON, so it catches URLs that are
-  not visible on the page.
-- **De-duplicated, scrollable results** — each URL has a clickable link and a **Copy** button, plus a
-  **Copy All** button.
-- **Graceful errors** — friendly messages for unsupported sites, no results, and page-access failures.
+---
 
-## Install (development)
+# 📌 What This Extension Does
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode** (top-right).
-3. Click **Load unpacked** and select the `heygen-audio-extractor/` folder.
-4. Pin the extension and open `https://app.heygen.com`, then click **Fetch Audio**.
+When you create a video on **HeyGen**, the voiceover is generated as audio. This extension helps you grab the links to that audio quickly.
 
-## Configuration
+Here is the simple idea, step by step:
 
-Both configurable values live in [`src/config/config.js`](src/config/config.js):
+1. ✅ Open your HeyGen video draft.
+2. ✅ Make sure the voice has already been generated.
+3. ✅ Click the extension icon.
+4. ✅ Click the **"Fetch Audio"** button.
+5. ✅ The extension automatically finds all the audio links on the page.
+6. ✅ Copy the links.
+7. ✅ Open each link in your browser.
+8. ✅ Download each audio file.
+9. ✅ Combine all the downloaded audio pieces in your favorite editing software.
 
-```js
-export const PARENT_WEBSITE_URL = "https://app.heygen.com";
-export const AUDIO_URL_PREFIX  = "https://resource2.heygen.ai";
+---
+
+## ⚠️ Very Important: Please Read This
+
+The links you get are **separate pieces (chunks) of your full voiceover**, not one single file.
+
+Think of it like a song that is split into several short clips. To get the complete voiceover, you need **all the clips together**.
+
+> ❗ **This extension does NOT join the audio files for you.**
+>
+> It only **finds and gives you the links**. You will need to:
+> 1. Download each audio piece, and
+> 2. Put them together yourself in any audio or video editing program.
+
+You can use any editor you like, for example:
+
+- 🎬 Adobe Premiere Pro
+- 📱 CapCut
+- 🎞️ DaVinci Resolve
+- 🎚️ Audacity
+- 🎵 Any other audio or video editor
+
+---
+
+# 💾 Installation Guide
+
+You only need to install this extension **once**. Pick the option that feels easiest for you.
+
+## ✅ Option 1: Download ZIP from GitHub (Easiest & Recommended)
+
+Follow these steps slowly, one at a time:
+
+1. Open the **GitHub page** for this project in your browser.
+2. Look for the green button that says **"Code"** and click it.
+3. In the small menu that opens, click **"Download ZIP"**.
+4. Find the downloaded ZIP file (usually in your **Downloads** folder).
+5. **Right-click** the ZIP file and choose **"Extract All"** (or "Unzip").
+6. Move the extracted folder to a safe place, for example your **Documents** folder.
+
+> 💡 **Tip:** Pick a folder where you keep important files and won't accidentally delete it.
+
+> ⚠️ **Important:** After you install the extension (in the steps further below), **do not move or delete this folder.** If you move or delete it, the extension will stop working.
+
+---
+
+## ✅ Option 2: Clone Using Git (For Technical Users)
+
+If you are comfortable using Git, you can clone the project instead:
+
+```bash
+git clone https://github.com/m-abdullah-awais/Heygen-audio-url-extractor-v1.git
 ```
 
-> **Note:** if you change `PARENT_WEBSITE_URL`, also update the matching patterns in
-> [`manifest.json`](manifest.json) (`content_scripts.matches` and `host_permissions`) — the manifest
-> cannot import JavaScript.
+Then continue with the **"Load the Extension into Chrome"** section below.
 
-## Project structure
+---
+
+# 🧩 Load the Extension into Chrome
+
+Now let's add the extension to your Chrome browser. Just follow along:
+
+### 1. Open Google Chrome
+
+Open your Chrome browser like you normally do.
+
+### 2. Go to the Extensions Page
+
+In the address bar at the top, type the following and press **Enter**:
 
 ```
-heygen-audio-extractor/
-├── manifest.json              # MV3 config + website restriction
-├── src/
-│   ├── config/config.js       # PARENT_WEBSITE_URL + AUDIO_URL_PREFIX
-│   ├── popup/                  # popup.html / popup.css / popup.js
-│   ├── content/content.js     # DOM scanner (message-driven)
-│   └── background/background.js# minimal service worker
-└── icons/                     # 16 / 48 / 128 px icons
+chrome://extensions
 ```
 
-## How it works
+### 3. Turn On "Developer Mode"
 
-1. The popup verifies the active tab is under `PARENT_WEBSITE_URL`; otherwise it shows a
-   "not supported" message and disables the button.
-2. Clicking **Fetch Audio** sends a `SCAN_AUDIO` message (with the prefix) to the content script.
-   If the content script isn't loaded yet (page opened before install), the popup injects it via
-   `chrome.scripting` and retries.
-3. The content script builds a broad text corpus from the page, normalizes JSON-escaped slashes,
-   regex-matches the prefix, de-duplicates with a `Set`, and returns a sorted list.
+Look at the **top-right corner** of the page. You will see a switch called **"Developer mode"**. Click it to turn it **ON**.
 
-## Limitation
+### 4. Click "Load Unpacked"
 
-Scanning is **DOM-only**. URLs that the page fetches purely via XHR/`fetch` and never writes into the
-DOM won't be captured. If that happens on HeyGen, add a `chrome.webRequest` listener in
-`background.js` to passively record matching requests (the natural upgrade path).
+A few new buttons will appear. Click the one that says **"Load unpacked"**.
 
-## Author
+### 5. Select the Extension Folder
 
-**Muhammad Abdullah Awais**
-Full Stack Developer
-🌐 [www.abdullahawais.com](https://www.abdullahawais.com)
+A window will open. Find and select the **folder you extracted earlier** (the one with the extension files inside). Then click **"Select Folder"**.
 
-## License
+### 6. Confirm It Worked ✅
+
+You should now see **"HeyGen Audio URL Extractor"** in your list of extensions. 🎉
+
+> 💡 **Tip:** Click the little puzzle-piece icon 🧩 near the top-right of Chrome and **pin** the extension so it's always easy to find.
+
+---
+
+# 🚀 How to Use
+
+Here is exactly how to use the extension, step by step.
+
+### Step 1: Open HeyGen
+
+Go to **[app.heygen.com](https://app.heygen.com)** and log in.
+
+### Step 2: Open Your Video Project
+
+Open the video project you have already created.
+
+### Step 3: Open the Draft in Edit Mode
+
+Open the video so you can see and **edit** it.
+
+### Step 4: Make Sure There Is a Script
+
+Check that your video already has a **script** (the text that becomes the voice).
+
+### Step 5: Play the Video Once
+
+Press **Play** and let the video play once.
+
+> ⚠️ **Very Important:** Make sure the **voice/audio has finished generating**.
+>
+> If the voice is **not ready yet**, please **wait** until HeyGen finishes creating it. The extension can only find audio that already exists.
+
+### Step 6: Click the Extension Icon
+
+Click the **HeyGen Audio URL Extractor** icon in the top-right of Chrome.
+
+### Step 7: Click "Fetch Audio"
+
+In the small popup window, click the **"Fetch Audio"** button.
+
+### Step 8: Wait a Few Seconds
+
+Give it a moment. The extension will automatically search the page and **collect all the audio links** it can find.
+
+### Step 9: Copy the Links
+
+You can copy links **one at a time**, or click the **"Copy All"** button to copy every link at once. 📋
+
+---
+
+# ⬇️ Downloading the Audio Files
+
+Now you have the links. Let's download each audio file.
+
+1. Open the **first** audio link from the list.
+2. The audio will open in a **new browser tab**.
+3. Click the **Download** button (often shown as a ⬇️ icon or three dots `⋮` in the audio player).
+4. **Save** the file to your computer.
+5. **Repeat** this for every link in the list.
+
+> ⚠️ **Important: Keep the Order!**
+>
+> Download the links in the **same order** they appear in the extension (top to bottom).
+>
+> Why? Because each file is a **piece of the voiceover**, and they must stay in the correct order to sound right when joined together.
+
+> 💡 **Tip:** Rename your files as you download them (for example `1.mp3`, `2.mp3`, `3.mp3`) so you don't lose track of the order.
+
+---
+
+# 🎬 Combining the Audio Chunks
+
+The files you downloaded are **separate pieces** of one voiceover. Now you will join them into a single audio track.
+
+Here is the simple plan:
+
+- ✅ Your downloaded files are separate audio chunks.
+- ✅ They must be placed **in order** (1, 2, 3, and so on).
+- ✅ Open any audio or video editing software.
+- ✅ **Import** all the audio files into it.
+- ✅ Place them **one after another**, in the same order shown by the extension.
+- ✅ **Export** the final, combined audio.
+
+You can use any editor you are comfortable with, such as:
+
+- 🎬 **Adobe Premiere Pro**
+- 📱 **CapCut**
+- 🎞️ **DaVinci Resolve**
+- 🎚️ **Audacity**
+- 🎵 **Any other audio or video editor**
+
+> ❗ **Please Remember:** The extension only helps you **find and download** the audio files.
+>
+> **You** are responsible for putting the pieces together into one complete voice track.
+
+---
+
+# 🛠️ Troubleshooting (Common Questions)
+
+### ❓ No URLs Found
+
+This can happen if:
+
+- ⏳ The audio has **not been generated yet**.
+- 📄 You are on the **wrong page**.
+- 🔄 The page needs to be **refreshed**.
+- ⌛ The video draft is **not fully loaded**.
+
+> 💡 Try reloading the page, make sure the voice is ready, then click **Fetch Audio** again.
+
+### ❓ Extension Not Working
+
+This can happen if:
+
+- 🧩 The extension was **not loaded correctly**.
+- 🌐 You are **not on a supported HeyGen page** (it only works on `app.heygen.com`).
+- 🔄 The browser simply needs a **refresh**.
+
+> 💡 Try refreshing the page or reloading the extension from `chrome://extensions`.
+
+### ❓ Audio Sounds Incomplete
+
+This can happen if:
+
+- ❌ **Not all** audio pieces were downloaded.
+- 🔀 The pieces were placed in the **wrong order**.
+
+> 💡 Double-check that you downloaded **every** link and arranged them in the **same order** as the extension.
+
+---
+
+# 📝 Important Notes
+
+> Keep these simple rules in mind for the best results:
+>
+> - ✅ Always open the video in **Edit Mode**.
+> - ✅ Always **check that the voice is ready** before clicking Fetch Audio.
+> - ✅ **Download all** the audio chunks, don't skip any.
+> - ✅ Keep the files in their **original order**.
+> - ✅ **Refresh the page** if something doesn't work.
+> - ✅ Do **not** skip any audio chunk.
+
+---
+
+# 💬 Support
+
+Need help or have a question? Feel free to reach out.
+
+| | |
+|---|---|
+| 👨‍💻 **Developer** | Muhammad Abdullah Awais |
+| 💼 **Role** | Full Stack Developer |
+| 🌐 **Portfolio** | [www.abdullahawais.com](https://www.abdullahawais.com) |
+| 🐙 **GitHub** | [m-abdullah-awais](https://github.com/m-abdullah-awais) |
+| 📦 **Repository** | [Heygen-audio-url-extractor-v1](https://github.com/m-abdullah-awais/Heygen-audio-url-extractor-v1) |
+| 📧 **Contact** | [contact@abdullahawais.com](mailto:contact@abdullahawais.com) |
+
+---
+
+<div align="center">
+
+### Muhammad Abdullah Awais
+
+**Full Stack Developer**
+
+🌐 [www.abdullahawais.com](https://www.abdullahawais.com) &nbsp;•&nbsp; 📧 [contact@abdullahawais.com](mailto:contact@abdullahawais.com)
+
+---
+
+⭐ *If this extension helped you, please consider giving the repository a star on GitHub!*
 
 © Muhammad Abdullah Awais. All rights reserved.
+
+</div>

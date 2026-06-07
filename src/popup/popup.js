@@ -1,9 +1,9 @@
 /**
  * HeyGen Audio URL Extractor
- * Author : Muhammad Abdullah Awais — Full Stack Developer
+ * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
- * popup.js — popup controller (ES module).
+ * popup.js: popup controller (ES module).
  *
  * Responsibilities:
  *  - Enforce the website restriction at the popup level.
@@ -165,7 +165,7 @@ async function handleFetch() {
     try {
       response = await sendScanMessage(tab.id);
     } catch {
-      // Fallback: content script not loaded yet — inject it, then retry once.
+      // Fallback: content script not loaded yet; inject it, then retry once.
       await injectContentScript(tab.id);
       response = await sendScanMessage(tab.id);
     }
