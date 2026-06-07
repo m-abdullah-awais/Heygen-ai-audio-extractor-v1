@@ -141,15 +141,17 @@ body {
 .header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 10px;
+  padding: 9px 13px;
   background: linear-gradient(120deg, #27b86e 0%, #16b8c8 36%, #428eee 68%, #c97fe0 100%);
   color: #fff;
 }
 .header__logo {
   display: block;
-  border-radius: 9px;
-  box-shadow: 0 2px 8px rgba(8, 9, 20, 0.35);
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  box-shadow: 0 1px 4px rgba(8, 9, 20, 0.3);
   flex: 0 0 auto;
 }
 .header__text {
@@ -157,16 +159,16 @@ body {
 }
 .title {
   margin: 0;
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
 .subtitle {
-  margin: 1px 0 0;
-  font-size: 10px;
+  margin: 0;
+  font-size: 8.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 /* Light / dark theme toggle, pinned to the right of the header. */
@@ -176,10 +178,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 27px;
+  height: 27px;
   padding: 0;
-  border-radius: 8px;
+  border-radius: 7px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
@@ -191,8 +193,8 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 .header__toggle svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
 }
 
 /* ---- Banner ---- */
@@ -402,29 +404,29 @@ body {
 /* ---- Footer / author credit ---- */
 .footer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 12px 16px 14px;
-  margin-top: 12px;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 14px;
+  margin-top: 8px;
   border-top: 1px solid var(--border);
-  text-align: center;
-}
-.footer__by {
-  font-size: 11px;
-  color: var(--fg);
-}
-.footer__role {
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 10.5px;
   color: var(--muted);
 }
+.footer__by {
+  color: var(--muted);
+}
+.footer__by strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+.footer__sep {
+  opacity: 0.5;
+}
 .footer__link {
-  margin-top: 2px;
-  font-size: 11px;
   color: var(--primary);
   text-decoration: none;
+  font-weight: 550;
 }
 .footer__link:hover {
   text-decoration: underline;

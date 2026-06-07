@@ -51,6 +51,24 @@ const resultsEl = document.getElementById("results"); // <ul>
 // Internal list of discovered audio URLs (kept private; never displayed).
 let audioUrls = [];
 
+// A 6-digit suffix shared by every file in a single fetch, e.g.
+// audio-01-483920.mp3, audio-02-483920.mp3, ... A fresh one is generated on
+// each fetch so one batch's files are grouped and won't clash with another.
+let batchSuffix = "";
+
+/**
+ * Generate a random numeric suffix (default 6 digits).
+ * @param {number} [len]
+ * @returns {string}
+ */
+function randomSuffix(len = 6) {
+  let out = "";
+  for (let i = 0; i < len; i++) {
+    out += Math.floor(Math.random() * 10);
+  }
+  return out;
+}
+
 /**
  * Show a status banner in one of three styles.
  * @param {string} message
@@ -210,14 +228,15 @@ function fileExtFromUrl(url) {
 }
 
 /**
- * Build the friendly, sequential filename for an audio item.
+ * Build the friendly, sequential filename for an audio item. Every file from
+ * the same fetch shares one random 6-digit suffix, e.g. "audio-01-483920.m4a".
  * @param {number} index 1-based position
  * @param {string} url internal source URL
- * @returns {string} e.g. "audio-01.m4a"
+ * @returns {string} e.g. "audio-01-483920.m4a"
  */
 function friendlyFileName(index, url) {
   const num = String(index).padStart(2, "0");
-  return `audio-${num}.${fileExtFromUrl(url)}`;
+  return `audio-${num}-${batchSuffix}.${fileExtFromUrl(url)}`;
 }
 
 /**
@@ -347,6 +366,8 @@ async function handleFetch() {
     }
 
     audioUrls = response.urls || [];
+    // One shared suffix for this whole batch of files.
+    batchSuffix = randomSuffix();
     renderAudioItems(audioUrls);
 
     if (audioUrls.length > 0) {
