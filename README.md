@@ -283,6 +283,9 @@ Need help or have a question? Feel free to reach out.
 | 👨‍💻 **Developer** | Muhammad Abdullah Awais |
 | 💼 **Role** | Full Stack Developer |
 | 🌐 **Portfolio** | [www.abdullahawais.com](https://www.abdullahawais.com) |
+| 💼 **LinkedIn** | [m-abdullah-awais-programmer](https://www.linkedin.com/in/m-abdullah-awais-programmer) |
+| ▶️ **YouTube** | [@m_abdullah_awais](https://www.youtube.com/@m_abdullah_awais) |
+| 📸 **Instagram** | [@m_abdullah_awais](https://www.instagram.com/m_abdullah_awais) |
 | 🐙 **GitHub** | [m-abdullah-awais](https://github.com/m-abdullah-awais) |
 | 📦 **Repository** | [Heygen-ai-audio-extractor-v1](https://github.com/m-abdullah-awais/Heygen-ai-audio-extractor-v1) |
 | 📧 **Contact** | [contact@abdullahawais.com](mailto:contact@abdullahawais.com) |
@@ -296,6 +299,10 @@ Need help or have a question? Feel free to reach out.
 **Full Stack Developer**
 
 🌐 [www.abdullahawais.com](https://www.abdullahawais.com) &nbsp;•&nbsp; 📧 [contact@abdullahawais.com](mailto:contact@abdullahawais.com)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/m-abdullah-awais-programmer)
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat&logo=youtube&logoColor=white)](https://www.youtube.com/@m_abdullah_awais)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=flat&logo=instagram&logoColor=white)](https://www.instagram.com/m_abdullah_awais)
 
 ---
 
