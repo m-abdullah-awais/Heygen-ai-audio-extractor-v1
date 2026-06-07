@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "HeyGen Audio URL Extractor",
+  "version": "1.0.0",
+  "description": "Fetch and display every audio URL on a HeyGen page. Active only on app.heygen.com.",
+  "author": "Muhammad Abdullah Awais",
+  "homepage_url": "https://www.abdullahawais.com",
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "HeyGen Audio URL Extractor",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "src/background/background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "//": "WEBSITE RESTRICTION (manifest level). Keep these patterns in sync with PARENT_WEBSITE_URL in src/config/config.js. The content script is ONLY injected on the parent site.",
+      "matches": ["https://app.heygen.com/*"],
+      "js": ["src/content/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "host_permissions": ["https://app.heygen.com/*"],
+
+  "permissions": ["activeTab", "scripting"]
+}

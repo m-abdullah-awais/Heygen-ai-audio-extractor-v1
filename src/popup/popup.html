@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  HeyGen Audio URL Extractor
+  Author : Muhammad Abdullah Awais — Full Stack Developer
+  Website: https://www.abdullahawais.com
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HeyGen Audio URL Extractor</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="title">Audio URL Extractor</h1>
+      <p class="subtitle">HeyGen</p>
+    </header>
+
+    <!-- Status banner: shows "not supported", result counts, and errors. -->
+    <div id="banner" class="banner banner--info" role="status" aria-live="polite"></div>
+
+    <div class="toolbar">
+      <button id="fetchBtn" class="btn btn--primary" type="button">Fetch Audio</button>
+      <button id="copyAllBtn" class="btn btn--ghost" type="button" hidden>Copy All</button>
+    </div>
+
+    <!-- Scrollable results list. Rows are injected by popup.js. -->
+    <ul id="results" class="results" aria-label="Extracted audio URLs"></ul>
+
+    <!-- White-label footer / author credit. -->
+    <footer class="footer">
+      <span class="footer__by">Built by <strong>Muhammad Abdullah Awais</strong></span>
+      <span class="footer__role">Full Stack Developer</span>
+      <a class="footer__link" href="https://www.abdullahawais.com" target="_blank" rel="noopener noreferrer">
+        www.abdullahawais.com
+      </a>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
