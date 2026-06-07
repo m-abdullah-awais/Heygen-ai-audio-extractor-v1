@@ -1,4 +1,10 @@
+<div align="center">
+
+<img src="icons/icon256.png" alt="HeyGen Audio URL Extractor logo" width="120" height="120" />
+
 # 🎧 HeyGen Audio URL Extractor
+
+</div>
 
 A simple Chrome extension that helps you **find and collect all the audio files** from your HeyGen video draft, with just one click.
 

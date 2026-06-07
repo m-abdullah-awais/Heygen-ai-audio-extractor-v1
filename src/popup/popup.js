@@ -8,7 +8,7 @@
  * Responsibilities:
  *  - Enforce the website restriction at the popup level.
  *  - Ask the content script to scan the page when "Fetch Audio" is clicked.
- *  - Render results with per-row copy + a "Copy All" action.
+ *  - Render results in a table with per-row Open + Copy actions, plus "Copy All".
  *  - Handle messaging / permission / page-access errors gracefully.
  */
 
@@ -17,11 +17,19 @@ import { PARENT_WEBSITE_URL, AUDIO_URL_PREFIX } from "../config/config.js";
 // Resolve the content script path once (relative to the extension root).
 const CONTENT_SCRIPT_PATH = "src/content/content.js";
 
+// Inline SVG icons for the per-row action buttons (trusted, static markup).
+const ICON_OPEN =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
+const ICON_COPY =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const ICON_CHECK =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
 // ---- DOM references ----
 const bannerEl = document.getElementById("banner");
 const fetchBtn = document.getElementById("fetchBtn");
 const copyAllBtn = document.getElementById("copyAllBtn");
-const resultsEl = document.getElementById("results");
+const resultsEl = document.getElementById("results"); // <tbody>
 
 // Holds the most recent extraction so "Copy All" has data to work with.
 let currentUrls = [];
@@ -39,6 +47,39 @@ function showBanner(message, type = "info") {
 function hideBanner() {
   bannerEl.className = "banner banner--info";
   bannerEl.textContent = "";
+}
+
+/**
+ * Toggle the Fetch button between idle and busy states without losing its icon.
+ * @param {boolean} busy
+ */
+function setFetchBusy(busy) {
+  fetchBtn.disabled = busy;
+  fetchBtn.innerHTML = busy
+    ? '<span class="btn__icon" aria-hidden="true">&#x231b;</span> Scanning…'
+    : '<span class="btn__icon" aria-hidden="true">&#x21bb;</span> Fetch Audio';
+}
+
+/**
+ * Render a single full-width state row (idle / empty / error) inside the table.
+ * @param {string} title
+ * @param {string} sub
+ */
+function renderState(title, sub) {
+  resultsEl.replaceChildren();
+  const tr = document.createElement("tr");
+  const td = document.createElement("td");
+  td.className = "state-cell";
+  td.colSpan = 3;
+  const t = document.createElement("span");
+  t.className = "state-title";
+  t.textContent = title;
+  const s = document.createElement("span");
+  s.className = "state-sub";
+  s.textContent = sub;
+  td.append(t, s);
+  tr.appendChild(td);
+  resultsEl.appendChild(tr);
 }
 
 /**
@@ -99,51 +140,86 @@ async function copyToClipboard(text) {
 }
 
 /**
- * Render the extracted URLs into the scrollable list.
+ * Build one table row for a single URL.
+ * @param {string} url
+ * @param {number} index 1-based position (order matters for the voiceover)
+ * @returns {HTMLTableRowElement}
+ */
+function buildRow(url, index) {
+  const tr = document.createElement("tr");
+
+  // Column 1: order badge.
+  const idxTd = document.createElement("td");
+  idxTd.className = "col-idx";
+  const badge = document.createElement("span");
+  badge.className = "idx-badge";
+  badge.textContent = String(index);
+  idxTd.appendChild(badge);
+
+  // Column 2: clickable, truncated URL (monospace).
+  const urlTd = document.createElement("td");
+  urlTd.className = "url-cell";
+  const link = document.createElement("a");
+  link.className = "url-link";
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.title = url; // full URL on hover
+  link.textContent = url;
+  urlTd.appendChild(link);
+
+  // Column 3: Open + Copy icon actions.
+  const actionsTd = document.createElement("td");
+  actionsTd.className = "col-actions";
+  const actions = document.createElement("div");
+  actions.className = "actions";
+
+  const openBtn = document.createElement("button");
+  openBtn.className = "icon-btn";
+  openBtn.type = "button";
+  openBtn.title = "Open in a new tab";
+  openBtn.setAttribute("aria-label", "Open in a new tab");
+  openBtn.innerHTML = ICON_OPEN;
+  openBtn.addEventListener("click", () => chrome.tabs.create({ url }));
+
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "icon-btn";
+  copyBtn.type = "button";
+  copyBtn.title = "Copy URL";
+  copyBtn.setAttribute("aria-label", "Copy URL");
+  copyBtn.innerHTML = ICON_COPY;
+  copyBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(url);
+    if (ok) {
+      copyBtn.innerHTML = ICON_CHECK;
+      copyBtn.classList.add("is-copied");
+      setTimeout(() => {
+        copyBtn.innerHTML = ICON_COPY;
+        copyBtn.classList.remove("is-copied");
+      }, 1200);
+    }
+  });
+
+  actions.append(openBtn, copyBtn);
+  actionsTd.appendChild(actions);
+
+  tr.append(idxTd, urlTd, actionsTd);
+  return tr;
+}
+
+/**
+ * Render the extracted URLs into the results table.
  * @param {string[]} urls
  */
 function renderResults(urls) {
-  resultsEl.replaceChildren();
-
   if (urls.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "empty";
-    empty.textContent = "No matching audio URLs found on this page.";
-    resultsEl.appendChild(empty);
+    renderState("No audio URLs found", "Make sure the voice has finished generating, then try again.");
     copyAllBtn.hidden = true;
     return;
   }
 
-  for (const url of urls) {
-    const row = document.createElement("li");
-    row.className = "result-row";
-
-    const link = document.createElement("a");
-    link.className = "result-link";
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.title = url; // full URL on hover; the row truncates with an ellipsis
-    link.textContent = url;
-
-    const copyBtn = document.createElement("button");
-    copyBtn.className = "copy-btn";
-    copyBtn.type = "button";
-    copyBtn.textContent = "Copy";
-    copyBtn.addEventListener("click", async () => {
-      const ok = await copyToClipboard(url);
-      copyBtn.textContent = ok ? "Copied!" : "Failed";
-      copyBtn.classList.toggle("is-copied", ok);
-      setTimeout(() => {
-        copyBtn.textContent = "Copy";
-        copyBtn.classList.remove("is-copied");
-      }, 1200);
-    });
-
-    row.append(link, copyBtn);
-    resultsEl.appendChild(row);
-  }
-
+  resultsEl.replaceChildren();
+  urls.forEach((url, i) => resultsEl.appendChild(buildRow(url, i + 1)));
   copyAllBtn.hidden = false;
 }
 
@@ -151,8 +227,7 @@ function renderResults(urls) {
  * Main fetch handler: scan the active tab and render the results.
  */
 async function handleFetch() {
-  fetchBtn.disabled = true;
-  fetchBtn.textContent = "Scanning…";
+  setFetchBusy(true);
   hideBanner();
 
   try {
@@ -184,21 +259,17 @@ async function handleFetch() {
     }
   } catch (error) {
     currentUrls = [];
-    resultsEl.replaceChildren();
     copyAllBtn.hidden = true;
-    showBanner(
-      "Couldn't scan this page. Make sure you're on an app.heygen.com page and try reloading it.",
-      "error"
-    );
+    renderState("Couldn't scan this page", "Open an app.heygen.com page, reload it, then try again.");
+    showBanner("Couldn't scan this page. Make sure you're on an app.heygen.com page and try reloading it.", "error");
     console.error("[HeyGen Audio Extractor]", error);
   } finally {
-    fetchBtn.disabled = false;
-    fetchBtn.textContent = "Fetch Audio";
+    setFetchBusy(false);
   }
 }
 
 /**
- * Copy every extracted URL (newline separated).
+ * Copy every extracted URL (newline separated, in display order).
  */
 async function handleCopyAll() {
   if (currentUrls.length === 0) return;
@@ -210,7 +281,7 @@ async function handleCopyAll() {
 }
 
 /**
- * On popup open: enforce the website restriction.
+ * On popup open: enforce the website restriction and show an idle state.
  */
 async function init() {
   fetchBtn.addEventListener("click", handleFetch);
@@ -221,11 +292,12 @@ async function init() {
 
   if (!url.startsWith(PARENT_WEBSITE_URL)) {
     fetchBtn.disabled = true;
-    showBanner(
-      `This website is not supported. Open ${PARENT_WEBSITE_URL} to use this extension.`,
-      "info"
-    );
+    renderState("Website not supported", `Open ${PARENT_WEBSITE_URL} to use this extension.`);
+    showBanner(`This website is not supported. Open ${PARENT_WEBSITE_URL} to use this extension.`, "info");
+    return;
   }
+
+  renderState("Ready to scan", 'Click "Fetch Audio" to collect every audio URL on this page.');
 }
 
 init();
