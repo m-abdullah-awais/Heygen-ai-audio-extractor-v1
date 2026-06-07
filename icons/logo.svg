@@ -1,8 +1,10 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HeyGen Audio URL Extractor logo">
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HeyGen Audio Extractor logo">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6366F1"/>
-      <stop offset="1" stop-color="#4338CA"/>
+      <stop offset="0" stop-color="#27B86E"/>
+      <stop offset="0.36" stop-color="#16B8C8"/>
+      <stop offset="0.68" stop-color="#428EEE"/>
+      <stop offset="1" stop-color="#C97FE0"/>
     </linearGradient>
     <linearGradient id="sheen" x1="256" y1="0" x2="256" y2="282" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.15"/>

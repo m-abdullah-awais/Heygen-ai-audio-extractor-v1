@@ -1,5 +1,5 @@
 /**
- * HeyGen Audio URL Extractor
+ * HeyGen Audio Extractor
  * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
@@ -10,10 +10,13 @@
  * the matching patterns in manifest.json ("content_scripts".matches and
  * "host_permissions"); the manifest cannot import JavaScript, so those are
  * the only other place the parent URL appears.
+ *
+ * NOTE: AUDIO_URL_PREFIX is used internally for matching only. The user never
+ * sees raw URLs anywhere in the interface.
  */
 
 // The site the extension is allowed to operate on (no trailing slash).
 export const PARENT_WEBSITE_URL = "https://app.heygen.com";
 
-// Only URLs that begin with this prefix are extracted from the page.
+// Only audio whose address begins with this prefix is collected (internal use).
 export const AUDIO_URL_PREFIX = "https://resource2.heygen.ai";

@@ -1,5 +1,5 @@
 /**
- * HeyGen Audio URL Extractor
+ * HeyGen Audio Extractor
  * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
@@ -8,6 +8,15 @@
  * It listens for a { type: "SCAN_AUDIO", prefix } message from the popup and
  * replies with { urls: [...] }: every UNIQUE URL on the page that starts with
  * the given prefix.
+ *
+ * The detection / scanning / matching logic here is UNCHANGED — it still finds
+ * exactly the same URLs as before. The popup converts these internal URLs into
+ * audio items; the URLs themselves are never shown to the user.
+ *
+ * ORDERING: the list is returned in the order the URLs are discovered on the
+ * page (the de-duplicating Set preserves first-seen order, and the result is
+ * intentionally NOT sorted). The popup numbers them Audio 1, Audio 2, ... in
+ * this exact order, which users rely on when combining the chunks.
  *
  * HeyGen is a React SPA, so audio URLs are frequently NOT plain <audio> tags;
  * they hide inside inline JSON, data-* attributes, and script payloads. We
@@ -43,7 +52,7 @@ function cleanUrl(url) {
 function buildSearchCorpus() {
   const chunks = [];
 
-  // 1. The full serialized DOM (catches anything rendered into markup).
+  // 1. The full serialized DOM — catches anything rendered into markup.
   chunks.push(document.documentElement.outerHTML);
 
   // 2. Every attribute of every element. This covers src, href, style,
@@ -64,7 +73,7 @@ function buildSearchCorpus() {
     chunks.push(a.href);
   }
 
-  // 4. Inline <script> contents: React/Next.js hydration data and config
+  // 4. Inline <script> contents — React/Next.js hydration data and config
   //    blobs commonly embed media URLs as JSON strings here.
   for (const script of document.querySelectorAll("script")) {
     if (script.textContent) chunks.push(script.textContent);
@@ -76,7 +85,7 @@ function buildSearchCorpus() {
 /**
  * Extract all unique URLs beginning with `prefix` from the live page.
  * @param {string} prefix
- * @returns {string[]} sorted, de-duplicated URLs
+ * @returns {string[]} de-duplicated URLs, in the order they are discovered
  */
 function extractAudioUrls(prefix) {
   // Match the prefix followed by any run of "URL-ish" characters, stopping at
@@ -101,7 +110,9 @@ function extractAudioUrls(prefix) {
     }
   }
 
-  return Array.from(found).sort();
+  // Preserve discovery order (first-seen). Do NOT sort: the popup numbers the
+  // items Audio 1, Audio 2, ... in this order and users combine them likewise.
+  return Array.from(found);
 }
 
 /**

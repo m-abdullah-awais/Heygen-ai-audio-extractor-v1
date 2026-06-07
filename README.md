@@ -1,14 +1,14 @@
 <div align="center">
 
-<img src="icons/icon256.png" alt="HeyGen Audio URL Extractor logo" width="120" height="120" />
+<img src="icons/icon256.png" alt="HeyGen Audio Extractor logo" width="120" height="120" />
 
-# 🎧 HeyGen Audio URL Extractor
+# 🎧 HeyGen Audio Extractor
 
 </div>
 
-A simple Chrome extension that helps you **find and collect all the audio files** from your HeyGen video draft, with just one click.
+A simple Chrome extension that finds all the audio in your HeyGen video draft and lets you **play and download each one right inside the extension**, with one click.
 
-No coding. No complicated steps. Just open your video, click **Fetch Audio**, and get all your voiceover audio links instantly. ✨
+No copying. No opening tabs. Just **Fetch Audio**, listen, and download. ✨
 
 > 👨‍💻 Built by **Muhammad Abdullah Awais** · Full Stack Developer · 🌐 [www.abdullahawais.com](https://www.abdullahawais.com)
 
@@ -16,35 +16,30 @@ No coding. No complicated steps. Just open your video, click **Fetch Audio**, an
 
 # 📌 What This Extension Does
 
-When you create a video on **HeyGen**, the voiceover is generated as audio. This extension helps you grab the links to that audio quickly.
+When you create a video on **HeyGen**, the voiceover is made up of several audio pieces. This extension collects them for you and shows each one as a ready-to-use audio file.
 
-Here is the simple idea, step by step:
+Here is the simple idea:
 
 1. ✅ Open your HeyGen video draft.
 2. ✅ Make sure the voice has already been generated.
 3. ✅ Click the extension icon.
 4. ✅ Click the **"Fetch Audio"** button.
-5. ✅ The extension automatically finds all the audio links on the page.
-6. ✅ Copy the links.
-7. ✅ Open each link in your browser.
-8. ✅ Download each audio file.
-9. ✅ Combine all the downloaded audio pieces in your favorite editing software.
+5. ✅ The extension finds every audio file and lists them as **Audio 1, Audio 2, Audio 3, …**
+6. ✅ **Play** any audio right inside the extension to preview it.
+7. ✅ **Download** each one with a single click, or use **Download All**.
+8. ✅ Combine the downloaded pieces in your favorite editing software.
 
 ---
 
 ## ⚠️ Very Important: Please Read This
 
-The links you get are **separate pieces (chunks) of your full voiceover**, not one single file.
+Your voiceover is made of **several separate audio pieces (chunks)**, not one single file.
 
-Think of it like a song that is split into several short clips. To get the complete voiceover, you need **all the clips together**.
+Think of it like a song split into short clips. To get the complete voiceover, you need **all the clips, in order**.
 
 > ❗ **This extension does NOT join the audio files for you.**
 >
-> It only **finds and gives you the links**. You will need to:
-> 1. Download each audio piece, and
-> 2. Put them together yourself in any audio or video editing program.
-
-You can use any editor you like, for example:
+> It **finds, previews, and downloads** them. You then put them together in any audio or video editor, for example:
 
 - 🎬 Adobe Premiere Pro
 - 📱 CapCut
@@ -80,7 +75,7 @@ Follow these steps slowly, one at a time:
 If you are comfortable using Git, you can clone the project instead:
 
 ```bash
-git clone https://github.com/m-abdullah-awais/Heygen-audio-url-extractor-v1.git
+git clone https://github.com/m-abdullah-awais/Heygen-ai-audio-extractor-v1.git
 ```
 
 Then continue with the **"Load the Extension into Chrome"** section below.
@@ -117,7 +112,7 @@ A window will open. Find and select the **folder you extracted earlier** (the on
 
 ### 6. Confirm It Worked ✅
 
-You should now see **"HeyGen Audio URL Extractor"** in your list of extensions. 🎉
+You should now see **"HeyGen Audio Extractor"** in your list of extensions. 🎉
 
 > 💡 **Tip:** Click the little puzzle-piece icon 🧩 near the top-right of Chrome and **pin** the extension so it's always easy to find.
 
@@ -153,50 +148,58 @@ Press **Play** and let the video play once.
 
 ### Step 6: Click the Extension Icon
 
-Click the **HeyGen Audio URL Extractor** icon in the top-right of Chrome.
+Click the **HeyGen Audio Extractor** icon in the top-right of Chrome.
 
 ### Step 7: Click "Fetch Audio"
 
-In the small popup window, click the **"Fetch Audio"** button.
+In the popup window, click the **"Fetch Audio"** button.
 
-### Step 8: Wait a Few Seconds
+### Step 8: See Your Audio Files
 
-Give it a moment. The extension will automatically search the page and **collect all the audio links** it can find.
+The extension lists everything it finds as **Audio 1, Audio 2, Audio 3, …** 🎵
 
-### Step 9: Copy the Links
+The numbers follow the order the audio appears in your video, which matters when you combine them later.
 
-You can copy links **one at a time**, or click the **"Copy All"** button to copy every link at once. 📋
+### Step 9: Play and Download
+
+- ▶️ Press **Play** on any item to preview it right inside the extension.
+- ⬇️ Click **Download** on an item to save just that file.
+- ⬇️ Click **Download All** to save every file at once.
 
 ---
 
 # ⬇️ Downloading the Audio Files
 
-Now you have the links. Let's download each audio file.
+Downloading is built right in, so you never have to open tabs or copy anything.
 
-1. Open the **first** audio link from the list.
-2. The audio will open in a **new browser tab**.
-3. Click the **Download** button (often shown as a ⬇️ icon or three dots `⋮` in the audio player).
-4. **Save** the file to your computer.
-5. **Repeat** this for every link in the list.
+- **Download one file:** click the **Download** button next to that audio item.
+- **Download everything:** click **Download All** at the top.
 
-> ⚠️ **Important: Keep the Order!**
+Files are saved automatically with friendly, ordered names:
+
+```
+audio-01.m4a
+audio-02.m4a
+audio-03.m4a
+audio-04.mp3
+```
+
+> 💡 **Good to know:** The numbering matches the order shown in the extension (Audio 1 → `audio-01`, Audio 2 → `audio-02`, and so on). The extension keeps the original file format whenever possible.
+
+> ⚠️ **Important — Keep the Order!**
 >
-> Download the links in the **same order** they appear in the extension (top to bottom).
->
-> Why? Because each file is a **piece of the voiceover**, and they must stay in the correct order to sound right when joined together.
-
-> 💡 **Tip:** Rename your files as you download them (for example `1.mp3`, `2.mp3`, `3.mp3`) so you don't lose track of the order.
+> The audio pieces must stay in the **same order** (Audio 1, Audio 2, Audio 3, …) so they sound right when you join them together.
 
 ---
 
-# 🎬 Combining the Audio Chunks
+# 🎬 Combining the Audio Files
 
 The files you downloaded are **separate pieces** of one voiceover. Now you will join them into a single audio track.
 
 Here is the simple plan:
 
-- ✅ Your downloaded files are separate audio chunks.
-- ✅ They must be placed **in order** (1, 2, 3, and so on).
+- ✅ Your downloaded files are separate audio pieces.
+- ✅ They are already numbered in order (`audio-01`, `audio-02`, …).
 - ✅ Open any audio or video editing software.
 - ✅ **Import** all the audio files into it.
 - ✅ Place them **one after another**, in the same order shown by the extension.
@@ -210,15 +213,15 @@ You can use any editor you are comfortable with, such as:
 - 🎚️ **Audacity**
 - 🎵 **Any other audio or video editor**
 
-> ❗ **Please Remember:** The extension only helps you **find and download** the audio files.
+> ❗ **Please Remember:** The extension finds, previews, and downloads your audio.
 >
-> **You** are responsible for putting the pieces together into one complete voice track.
+> **You** put the pieces together into one complete voice track.
 
 ---
 
 # 🛠️ Troubleshooting (Common Questions)
 
-### ❓ No URLs Found
+### ❓ No Audio Files Found
 
 This can happen if:
 
@@ -246,7 +249,7 @@ This can happen if:
 - ❌ **Not all** audio pieces were downloaded.
 - 🔀 The pieces were placed in the **wrong order**.
 
-> 💡 Double-check that you downloaded **every** link and arranged them in the **same order** as the extension.
+> 💡 Double-check that you downloaded **every** item and arranged them in the **same order** as the extension (Audio 1, Audio 2, …).
 
 ---
 
@@ -256,10 +259,10 @@ This can happen if:
 >
 > - ✅ Always open the video in **Edit Mode**.
 > - ✅ Always **check that the voice is ready** before clicking Fetch Audio.
-> - ✅ **Download all** the audio chunks, don't skip any.
+> - ✅ **Download all** the audio pieces, don't skip any.
 > - ✅ Keep the files in their **original order**.
 > - ✅ **Refresh the page** if something doesn't work.
-> - ✅ Do **not** skip any audio chunk.
+> - ✅ Do **not** skip any audio piece.
 
 ---
 
@@ -273,7 +276,7 @@ Need help or have a question? Feel free to reach out.
 | 💼 **Role** | Full Stack Developer |
 | 🌐 **Portfolio** | [www.abdullahawais.com](https://www.abdullahawais.com) |
 | 🐙 **GitHub** | [m-abdullah-awais](https://github.com/m-abdullah-awais) |
-| 📦 **Repository** | [Heygen-audio-url-extractor-v1](https://github.com/m-abdullah-awais/Heygen-audio-url-extractor-v1) |
+| 📦 **Repository** | [Heygen-ai-audio-extractor-v1](https://github.com/m-abdullah-awais/Heygen-ai-audio-extractor-v1) |
 | 📧 **Contact** | [contact@abdullahawais.com](mailto:contact@abdullahawais.com) |
 
 ---

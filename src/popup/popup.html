@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  HeyGen Audio URL Extractor
+  HeyGen Audio Extractor
   Author : Muhammad Abdullah Awais, Full Stack Developer
   Website: https://www.abdullahawais.com
 -->
@@ -8,19 +8,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HeyGen Audio URL Extractor</title>
+    <title>HeyGen Audio Extractor</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <header class="header">
       <img class="header__logo" src="../../icons/icon128.png" alt="" width="36" height="36" />
       <div class="header__text">
-        <h1 class="title">Audio URL Extractor</h1>
+        <h1 class="title">Audio Extractor</h1>
         <p class="subtitle">HeyGen</p>
       </div>
+      <button id="themeToggle" class="header__toggle" type="button"
+        title="Toggle light / dark mode" aria-label="Toggle light or dark mode"></button>
     </header>
 
-    <!-- Status banner: shows "not supported", result counts, and errors. -->
+    <!-- Status banner: shows "not supported", audio counts, and errors. -->
     <div id="banner" class="banner banner--info" role="status" aria-live="polite"></div>
 
     <div class="toolbar">
@@ -28,24 +30,20 @@
         <span class="btn__icon" aria-hidden="true">&#x21bb;</span>
         Fetch Audio
       </button>
-      <button id="copyAllBtn" class="btn btn--ghost" type="button" hidden>Copy All</button>
+      <button id="downloadAllBtn" class="btn btn--ghost" type="button" hidden>
+        <span class="btn__icon" aria-hidden="true">&#x2193;</span>
+        Download All
+      </button>
     </div>
 
-    <!-- Results table. The <tbody> rows are injected by popup.js. -->
-    <div class="results-wrap">
-      <table class="results-table" aria-label="Extracted audio URLs">
-        <thead>
-          <tr>
-            <th class="col-idx" scope="col">#</th>
-            <th class="col-url" scope="col">Audio URL</th>
-            <th class="col-actions" scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="results">
-          <!-- Idle / empty / result rows injected here -->
-        </tbody>
-      </table>
-    </div>
+    <!-- Audio items (Audio 1, Audio 2, ...) are injected here by popup.js. -->
+    <ul id="results" class="audio-list" aria-label="Discovered audio files"></ul>
+
+    <!-- Reminder shown once audio is found: the chunks must be combined. -->
+    <p id="combineNote" class="combine-note" hidden>
+      <span class="combine-note__icon" aria-hidden="true">🧩</span>
+      <span>Download every file and combine the chunks <strong>in order</strong> (Audio 1, 2, 3 …) to get the complete voiceover.</span>
+    </p>
 
     <!-- White-label footer / author credit. -->
     <footer class="footer">

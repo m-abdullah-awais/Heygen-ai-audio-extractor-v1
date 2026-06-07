@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "HeyGen Audio URL Extractor",
+  "name": "HeyGen Audio Extractor",
   "version": "1.0.0",
-  "description": "Fetch and display every audio URL on a HeyGen page. Active only on app.heygen.com.",
+  "description": "Find every audio file on a HeyGen page, then play and download them right inside the popup. Active only on app.heygen.com.",
   "author": "Muhammad Abdullah Awais",
   "homepage_url": "https://www.abdullahawais.com",
 
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "HeyGen Audio URL Extractor",
+    "default_title": "HeyGen Audio Extractor",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -38,5 +38,5 @@
 
   "host_permissions": ["https://app.heygen.com/*"],
 
-  "permissions": ["activeTab", "scripting"]
+  "permissions": ["activeTab", "scripting", "downloads"]
 }

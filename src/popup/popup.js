@@ -1,15 +1,21 @@
 /**
- * HeyGen Audio URL Extractor
+ * HeyGen Audio Extractor
  * Author : Muhammad Abdullah Awais, Full Stack Developer
  * Website: https://www.abdullahawais.com
  * -----------------------------------------------------------------------------
  * popup.js: popup controller (ES module).
  *
+ * The page scan still returns raw URLs (see content.js — that logic is
+ * unchanged). This controller keeps those URLs INTERNAL and presents each one
+ * as a friendly audio item: 🎵 Audio 1, Audio 2, ... with a native player and
+ * a direct Download button. The user never sees a URL.
+ *
  * Responsibilities:
  *  - Enforce the website restriction at the popup level.
  *  - Ask the content script to scan the page when "Fetch Audio" is clicked.
- *  - Render results in a table with per-row Open + Copy actions, plus "Copy All".
- *  - Handle messaging / permission / page-access errors gracefully.
+ *  - Render each discovered audio as a playable + downloadable item, in order.
+ *  - Download individually or all at once with friendly sequential filenames.
+ *  - Handle errors gracefully, never exposing technical details or URLs.
  */
 
 import { PARENT_WEBSITE_URL, AUDIO_URL_PREFIX } from "../config/config.js";
@@ -17,22 +23,33 @@ import { PARENT_WEBSITE_URL, AUDIO_URL_PREFIX } from "../config/config.js";
 // Resolve the content script path once (relative to the extension root).
 const CONTENT_SCRIPT_PATH = "src/content/content.js";
 
-// Inline SVG icons for the per-row action buttons (trusted, static markup).
-const ICON_OPEN =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
-const ICON_COPY =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+// Audio extensions we recognise; anything else falls back to ".mp3".
+const KNOWN_AUDIO_EXTS = ["mp3", "m4a", "wav", "aac", "ogg", "oga", "opus", "flac", "webm", "mp4"];
+
+// Inline download icon (trusted, static markup).
+const ICON_DOWNLOAD =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 const ICON_CHECK =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+// Sun (shown while dark → click for light) and moon (shown while light → click for dark).
+const ICON_SUN =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+const ICON_MOON =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+// Key used to remember the user's manual theme choice across popup sessions.
+const THEME_KEY = "heygen-audio-extractor-theme";
 
 // ---- DOM references ----
 const bannerEl = document.getElementById("banner");
 const fetchBtn = document.getElementById("fetchBtn");
-const copyAllBtn = document.getElementById("copyAllBtn");
-const resultsEl = document.getElementById("results"); // <tbody>
+const downloadAllBtn = document.getElementById("downloadAllBtn");
+const themeToggle = document.getElementById("themeToggle");
+const combineNote = document.getElementById("combineNote");
+const resultsEl = document.getElementById("results"); // <ul>
 
-// Holds the most recent extraction so "Copy All" has data to work with.
-let currentUrls = [];
+// Internal list of discovered audio URLs (kept private; never displayed).
+let audioUrls = [];
 
 /**
  * Show a status banner in one of three styles.
@@ -50,6 +67,52 @@ function hideBanner() {
 }
 
 /**
+ * Work out which theme is currently showing: an explicit user choice if set,
+ * otherwise whatever the operating system prefers.
+ * @returns {"light"|"dark"}
+ */
+function getEffectiveTheme() {
+  const explicit = document.documentElement.getAttribute("data-theme");
+  if (explicit === "light" || explicit === "dark") return explicit;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+/**
+ * Apply a theme: set the attribute (so CSS variables switch), update the toggle
+ * icon, and remember the choice. The toggle shows the icon for the theme you'd
+ * switch TO (moon while light, sun while dark).
+ * @param {"light"|"dark"} theme
+ * @param {boolean} [persist] save the choice (default true)
+ */
+function applyTheme(theme, persist = true) {
+  document.documentElement.setAttribute("data-theme", theme);
+  themeToggle.innerHTML = theme === "dark" ? ICON_SUN : ICON_MOON;
+  themeToggle.title = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  if (persist) {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      /* storage may be unavailable; the toggle still works for this session */
+    }
+  }
+}
+
+/**
+ * Flip between light and dark based on what is currently showing.
+ */
+function toggleTheme() {
+  applyTheme(getEffectiveTheme() === "dark" ? "light" : "dark");
+}
+
+/**
+ * Show or hide the "combine the chunks" reminder.
+ * @param {boolean} show
+ */
+function setCombineNoteVisible(show) {
+  combineNote.hidden = !show;
+}
+
+/**
  * Toggle the Fetch button between idle and busy states without losing its icon.
  * @param {boolean} busy
  */
@@ -61,25 +124,26 @@ function setFetchBusy(busy) {
 }
 
 /**
- * Render a single full-width state row (idle / empty / error) inside the table.
+ * Render a single full-width state card (idle / empty / error).
+ * @param {string} emoji
  * @param {string} title
  * @param {string} sub
  */
-function renderState(title, sub) {
+function renderState(emoji, title, sub) {
   resultsEl.replaceChildren();
-  const tr = document.createElement("tr");
-  const td = document.createElement("td");
-  td.className = "state-cell";
-  td.colSpan = 3;
+  const li = document.createElement("li");
+  li.className = "state";
+  const e = document.createElement("span");
+  e.className = "state__emoji";
+  e.textContent = emoji;
   const t = document.createElement("span");
-  t.className = "state-title";
+  t.className = "state__title";
   t.textContent = title;
   const s = document.createElement("span");
-  s.className = "state-sub";
+  s.className = "state__sub";
   s.textContent = sub;
-  td.append(t, s);
-  tr.appendChild(td);
-  resultsEl.appendChild(tr);
+  li.append(e, t, s);
+  resultsEl.appendChild(li);
 }
 
 /**
@@ -126,109 +190,142 @@ function injectContentScript(tabId) {
 }
 
 /**
- * Copy text to the clipboard, returning whether it succeeded.
- * @param {string} text
- * @returns {Promise<boolean>}
+ * Work out the file extension for a download from its URL, falling back to
+ * "mp3" when the format cannot be determined. (Internal use only.)
+ * @param {string} url
+ * @returns {string} extension without the dot
  */
-async function copyToClipboard(text) {
+function fileExtFromUrl(url) {
   try {
-    await navigator.clipboard.writeText(text);
-    return true;
+    const pathname = new URL(url).pathname;
+    const match = pathname.match(/\.([a-z0-9]{1,5})$/i);
+    if (match) {
+      const ext = match[1].toLowerCase();
+      if (KNOWN_AUDIO_EXTS.includes(ext)) return ext;
+    }
   } catch {
-    return false;
+    /* ignore malformed URLs and use the default */
   }
+  return "mp3";
 }
 
 /**
- * Build one table row for a single URL.
- * @param {string} url
- * @param {number} index 1-based position (order matters for the voiceover)
- * @returns {HTMLTableRowElement}
+ * Build the friendly, sequential filename for an audio item.
+ * @param {number} index 1-based position
+ * @param {string} url internal source URL
+ * @returns {string} e.g. "audio-01.m4a"
  */
-function buildRow(url, index) {
-  const tr = document.createElement("tr");
+function friendlyFileName(index, url) {
+  const num = String(index).padStart(2, "0");
+  return `audio-${num}.${fileExtFromUrl(url)}`;
+}
 
-  // Column 1: order badge.
-  const idxTd = document.createElement("td");
-  idxTd.className = "col-idx";
-  const badge = document.createElement("span");
-  badge.className = "idx-badge";
-  badge.textContent = String(index);
-  idxTd.appendChild(badge);
+/**
+ * Download one audio file directly (no new tab, no redirect).
+ * @param {string} url internal source URL
+ * @param {string} filename friendly name
+ * @returns {Promise<number>} the download id
+ */
+function downloadAudio(url, filename) {
+  return new Promise((resolve, reject) => {
+    chrome.downloads.download({ url, filename, saveAs: false, conflictAction: "uniquify" }, (id) => {
+      const err = chrome.runtime.lastError;
+      if (err || id === undefined) {
+        reject(new Error(err ? err.message : "Download failed."));
+        return;
+      }
+      resolve(id);
+    });
+  });
+}
 
-  // Column 2: clickable, truncated URL (monospace).
-  const urlTd = document.createElement("td");
-  urlTd.className = "url-cell";
-  const link = document.createElement("a");
-  link.className = "url-link";
-  link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.title = url; // full URL on hover
-  link.textContent = url;
-  urlTd.appendChild(link);
+/**
+ * Build one audio item card (label + native player + download button).
+ * @param {string} url internal source URL
+ * @param {number} index 1-based position (order matters for combining later)
+ * @returns {HTMLLIElement}
+ */
+function buildAudioItem(url, index) {
+  const li = document.createElement("li");
+  li.className = "audio-item";
 
-  // Column 3: Open + Copy icon actions.
-  const actionsTd = document.createElement("td");
-  actionsTd.className = "col-actions";
-  const actions = document.createElement("div");
-  actions.className = "actions";
+  // Header row: "🎵 Audio N"  +  Download button.
+  const head = document.createElement("div");
+  head.className = "audio-item__head";
 
-  const openBtn = document.createElement("button");
-  openBtn.className = "icon-btn";
-  openBtn.type = "button";
-  openBtn.title = "Open in a new tab";
-  openBtn.setAttribute("aria-label", "Open in a new tab");
-  openBtn.innerHTML = ICON_OPEN;
-  openBtn.addEventListener("click", () => chrome.tabs.create({ url }));
+  const label = document.createElement("span");
+  label.className = "audio-item__label";
+  const icon = document.createElement("span");
+  icon.className = "audio-item__icon";
+  icon.textContent = "🎵";
+  icon.setAttribute("aria-hidden", "true");
+  const labelText = document.createElement("span");
+  labelText.textContent = `Audio ${index}`;
+  label.append(icon, labelText);
 
-  const copyBtn = document.createElement("button");
-  copyBtn.className = "icon-btn";
-  copyBtn.type = "button";
-  copyBtn.title = "Copy URL";
-  copyBtn.setAttribute("aria-label", "Copy URL");
-  copyBtn.innerHTML = ICON_COPY;
-  copyBtn.addEventListener("click", async () => {
-    const ok = await copyToClipboard(url);
-    if (ok) {
-      copyBtn.innerHTML = ICON_CHECK;
-      copyBtn.classList.add("is-copied");
+  const downloadBtn = document.createElement("button");
+  downloadBtn.className = "btn-download";
+  downloadBtn.type = "button";
+  downloadBtn.innerHTML = `${ICON_DOWNLOAD}<span>Download</span>`;
+  downloadBtn.addEventListener("click", async () => {
+    downloadBtn.disabled = true;
+    try {
+      await downloadAudio(url, friendlyFileName(index, url));
+      downloadBtn.innerHTML = `${ICON_CHECK}<span>Saved</span>`;
+      downloadBtn.classList.add("is-done");
       setTimeout(() => {
-        copyBtn.innerHTML = ICON_COPY;
-        copyBtn.classList.remove("is-copied");
-      }, 1200);
+        downloadBtn.innerHTML = `${ICON_DOWNLOAD}<span>Download</span>`;
+        downloadBtn.classList.remove("is-done");
+      }, 1600);
+    } catch (error) {
+      showBanner("Could not download this audio. Please try again.", "error");
+      console.error("[HeyGen Audio Extractor]", error);
+    } finally {
+      downloadBtn.disabled = false;
     }
   });
 
-  actions.append(openBtn, copyBtn);
-  actionsTd.appendChild(actions);
+  head.append(label, downloadBtn);
 
-  tr.append(idxTd, urlTd, actionsTd);
-  return tr;
+  // Native audio player. preload="none" avoids fetching every clip at once;
+  // the src is the internal URL but it is never shown as text.
+  const player = document.createElement("audio");
+  player.className = "audio-item__player";
+  player.controls = true;
+  player.preload = "none";
+  player.src = url;
+
+  li.append(head, player);
+  return li;
 }
 
 /**
- * Render the extracted URLs into the results table.
- * @param {string[]} urls
+ * Render all discovered audio as numbered, playable, downloadable items.
+ * @param {string[]} urls internal source URLs, in discovery order
  */
-function renderResults(urls) {
+function renderAudioItems(urls) {
   if (urls.length === 0) {
-    renderState("No audio URLs found", "Make sure the voice has finished generating, then try again.");
-    copyAllBtn.hidden = true;
+    renderState("🔇", "No audio files found", "Make sure the voice has finished generating, then try again.");
+    downloadAllBtn.hidden = true;
+    setCombineNoteVisible(false);
     return;
   }
 
   resultsEl.replaceChildren();
-  urls.forEach((url, i) => resultsEl.appendChild(buildRow(url, i + 1)));
-  copyAllBtn.hidden = false;
+  urls.forEach((url, i) => resultsEl.appendChild(buildAudioItem(url, i + 1)));
+  downloadAllBtn.hidden = false;
+  setCombineNoteVisible(true);
 }
 
 /**
- * Main fetch handler: scan the active tab and render the results.
+ * Main fetch handler: scan the active tab and render the audio items.
  */
 async function handleFetch() {
   setFetchBusy(true);
   hideBanner();
+  // Hide bulk download until this scan actually returns audio.
+  downloadAllBtn.hidden = true;
+  setCombineNoteVisible(false);
 
   try {
     const tab = await getActiveTab();
@@ -249,18 +346,19 @@ async function handleFetch() {
       throw new Error(response && response.error ? response.error : "Scan failed.");
     }
 
-    currentUrls = response.urls || [];
-    renderResults(currentUrls);
+    audioUrls = response.urls || [];
+    renderAudioItems(audioUrls);
 
-    if (currentUrls.length > 0) {
-      showBanner(`Found ${currentUrls.length} audio URL${currentUrls.length === 1 ? "" : "s"}.`, "success");
+    if (audioUrls.length > 0) {
+      showBanner(`Audio found: ${audioUrls.length} file${audioUrls.length === 1 ? "" : "s"}.`, "success");
     } else {
       hideBanner();
     }
   } catch (error) {
-    currentUrls = [];
-    copyAllBtn.hidden = true;
-    renderState("Couldn't scan this page", "Open an app.heygen.com page, reload it, then try again.");
+    audioUrls = [];
+    downloadAllBtn.hidden = true;
+    setCombineNoteVisible(false);
+    renderState("⚠️", "Couldn't scan this page", "Open an app.heygen.com page, reload it, then try again.");
     showBanner("Couldn't scan this page. Make sure you're on an app.heygen.com page and try reloading it.", "error");
     console.error("[HeyGen Audio Extractor]", error);
   } finally {
@@ -269,35 +367,69 @@ async function handleFetch() {
 }
 
 /**
- * Copy every extracted URL (newline separated, in display order).
+ * Download every discovered audio file, preserving order and numbering.
  */
-async function handleCopyAll() {
-  if (currentUrls.length === 0) return;
-  const ok = await copyToClipboard(currentUrls.join("\n"));
-  copyAllBtn.textContent = ok ? "Copied!" : "Failed";
-  setTimeout(() => {
-    copyAllBtn.textContent = "Copy All";
-  }, 1200);
+async function handleDownloadAll() {
+  if (audioUrls.length === 0) return;
+
+  downloadAllBtn.disabled = true;
+  const original = downloadAllBtn.innerHTML;
+  downloadAllBtn.innerHTML = '<span class="btn__icon" aria-hidden="true">&#x231b;</span> Downloading…';
+
+  let started = 0;
+  for (let i = 0; i < audioUrls.length; i++) {
+    try {
+      await downloadAudio(audioUrls[i], friendlyFileName(i + 1, audioUrls[i]));
+      started++;
+    } catch (error) {
+      console.error("[HeyGen Audio Extractor]", error);
+    }
+  }
+
+  downloadAllBtn.innerHTML = original;
+  downloadAllBtn.disabled = false;
+
+  if (started === audioUrls.length) {
+    showBanner(`Downloading all ${started} audio file${started === 1 ? "" : "s"}.`, "success");
+  } else {
+    showBanner(`Started ${started} of ${audioUrls.length} downloads. Please retry the rest.`, "error");
+  }
 }
 
 /**
  * On popup open: enforce the website restriction and show an idle state.
  */
 async function init() {
+  // Theme: restore the saved choice (if any) and reflect it on the toggle.
+  // With no saved choice we leave the system preference in charge but still
+  // show the correct icon for what's currently displayed.
+  let savedTheme = null;
+  try {
+    savedTheme = localStorage.getItem(THEME_KEY);
+  } catch {
+    /* storage unavailable; fall back to system preference */
+  }
+  if (savedTheme === "light" || savedTheme === "dark") {
+    applyTheme(savedTheme, false);
+  } else {
+    themeToggle.innerHTML = getEffectiveTheme() === "dark" ? ICON_SUN : ICON_MOON;
+  }
+
   fetchBtn.addEventListener("click", handleFetch);
-  copyAllBtn.addEventListener("click", handleCopyAll);
+  downloadAllBtn.addEventListener("click", handleDownloadAll);
+  themeToggle.addEventListener("click", toggleTheme);
 
   const tab = await getActiveTab();
   const url = tab && tab.url ? tab.url : "";
 
   if (!url.startsWith(PARENT_WEBSITE_URL)) {
     fetchBtn.disabled = true;
-    renderState("Website not supported", `Open ${PARENT_WEBSITE_URL} to use this extension.`);
+    renderState("🚫", "Website not supported", "Open app.heygen.com to use this extension.");
     showBanner(`This website is not supported. Open ${PARENT_WEBSITE_URL} to use this extension.`, "info");
     return;
   }
 
-  renderState("Ready to scan", 'Click "Fetch Audio" to collect every audio URL on this page.');
+  renderState("🎧", "Ready to fetch audio", 'Click "Fetch Audio" to find every audio file on this page.');
 }
 
 init();
