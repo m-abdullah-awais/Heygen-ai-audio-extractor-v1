@@ -114,7 +114,15 @@ A window will open. Find and select the **folder you extracted earlier** (the on
 
 You should now see **"HeyGen Audio Extractor"** in your list of extensions. 🎉
 
-> 💡 **Tip:** Click the little puzzle-piece icon 🧩 near the top-right of Chrome and **pin** the extension so it's always easy to find.
+### 7. Pin the Extension to Your Toolbar 📌
+
+So you can open it with one click every time:
+
+1. Click the **puzzle-piece icon** 🧩 at the **top-right** of Chrome (next to the address bar).
+2. Find **"HeyGen Audio Extractor"** in the list.
+3. Click the **pin icon** 📌 next to it.
+
+The extension icon will now stay visible in your toolbar, ready whenever you need it. ✅
 
 ---
 
