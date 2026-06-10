@@ -1,14 +1,18 @@
 <div align="center">
 
-<img src="icons/icon256.png" alt="HeyGen Audio Extractor logo" width="120" height="120" />
+<img src="icons/icon256.png" alt="HeyGen Audio & Video Extractor logo" width="120" height="120" />
 
-# 🎧 HeyGen Audio Extractor
+# 🎧 HeyGen Audio &amp; Video Extractor
 
 </div>
 
-A simple Chrome extension that finds all the audio in your HeyGen video draft and lets you **play and download each one right inside the extension**, with one click.
+A simple Chrome extension that finds the **audio** and the **rendered video** in your HeyGen draft and lets you **play and download them right inside the extension**, with one click.
 
-No copying. No opening tabs. Just **Fetch Audio**, listen, and download. ✨
+No copying. No opening tabs. Just **Fetch**, listen/preview, and download. ✨
+
+The popup has **two tabs**:
+- 🎵 **Audio** — every voiceover chunk from your draft.
+- 🎬 **Video** — the final rendered scene video (available once the scene is fully rendered).
 
 > 👨‍💻 Built by **Muhammad Abdullah Awais** · Full Stack Developer · 🌐 [www.abdullahawais.com](https://www.abdullahawais.com)
 
@@ -227,6 +231,38 @@ You can use any editor you are comfortable with, such as:
 
 ---
 
+# 🎬 Getting the Video (Rendered Scene)
+
+The **Video** tab grabs the final rendered scene video from your HeyGen draft.
+
+> ⚠️ **Most important rule:** the scene must be **fully rendered** before a video will appear. If you click Fetch Video too early, the extension will (correctly) find nothing.
+
+Follow these steps in order:
+
+### Step 1: Set Up Your Scene
+
+Add your **script** and choose your **avatar** and **voice** in HeyGen.
+
+### Step 2: Generate the Voice First
+
+Open the **🎵 Audio** tab and **play / generate the voice** so the audio finishes rendering. (You can fetch the audio here too.)
+
+### Step 3: Render the Scene
+
+Once the voice is ready, **render the scene** by clicking the **Render Scene** button in HeyGen so the video finishes processing. Wait for it to complete.
+
+### Step 4: Fetch the Video
+
+Open the **🎬 Video** tab and click **"Fetch Video"**.
+
+- The rendered video appears as **Video 1** with a built-in player.
+- Press **Play** to preview it, then click **Download** (or **Download All**).
+- The file is saved as `video-01-<number>.mp4`, matching your audio file numbering.
+
+> 💡 **Still seeing "No video found"?** The scene isn't fully rendered yet. Let HeyGen finish, refresh the page if needed, then click **Fetch Video** again.
+
+---
+
 # 🛠️ Troubleshooting (Common Questions)
 
 ### ❓ No Audio Files Found
@@ -239,6 +275,16 @@ This can happen if:
 - ⌛ The video draft is **not fully loaded**.
 
 > 💡 Try reloading the page, make sure the voice is ready, then click **Fetch Audio** again.
+
+### ❓ No Video Found
+
+This almost always means:
+
+- 🎬 The scene is **not fully rendered yet** (the #1 reason).
+- 🔄 The page needs to be **refreshed** after rendering finished.
+- ⌛ You clicked **Fetch Video** before processing completed.
+
+> 💡 Finish rendering the scene in HeyGen, wait until it's done, refresh if needed, then click **Fetch Video** again.
 
 ### ❓ Extension Not Working
 

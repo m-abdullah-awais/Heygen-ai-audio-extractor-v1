@@ -5,13 +5,14 @@
  * -----------------------------------------------------------------------------
  * content.js: DOM scanner injected on HeyGen pages.
  *
- * It listens for a { type: "SCAN_AUDIO", prefix } message from the popup and
- * replies with { urls: [...] }: every UNIQUE URL on the page that starts with
- * the given prefix.
+ * It listens for a { type: "SCAN", prefix } message from the popup and replies
+ * with { urls: [...] }: every UNIQUE URL on the page that starts with the given
+ * prefix. The same routine is used for both audio and video — only the prefix
+ * the popup passes in differs.
  *
  * The detection / scanning / matching logic here is UNCHANGED — it still finds
  * exactly the same URLs as before. The popup converts these internal URLs into
- * audio items; the URLs themselves are never shown to the user.
+ * audio / video items; the URLs themselves are never shown to the user.
  *
  * ORDERING: the list is returned in the order the URLs are discovered on the
  * page (the de-duplicating Set preserves first-seen order, and the result is
@@ -84,10 +85,12 @@ function buildSearchCorpus() {
 
 /**
  * Extract all unique URLs beginning with `prefix` from the live page.
+ * Query strings are kept (the matcher only stops at quotes/whitespace/brackets),
+ * so signed video URLs keep their `?...` parameters intact.
  * @param {string} prefix
  * @returns {string[]} de-duplicated URLs, in the order they are discovered
  */
-function extractAudioUrls(prefix) {
+function extractUrlsByPrefix(prefix) {
   // Match the prefix followed by any run of "URL-ish" characters, stopping at
   // the first delimiter/quote/closing bracket.
   const pattern = new RegExp(escapeRegExp(prefix) + "[^\\s\"'`<>\\\\)\\]}]+", "g");
@@ -120,12 +123,12 @@ function extractAudioUrls(prefix) {
  * message channel open until sendResponse is called.
  */
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (!message || message.type !== "SCAN_AUDIO") {
+  if (!message || message.type !== "SCAN") {
     return; // Not for us; ignore unknown messages gracefully.
   }
 
   try {
-    const urls = extractAudioUrls(message.prefix);
+    const urls = extractUrlsByPrefix(message.prefix);
     sendResponse({ ok: true, urls });
   } catch (error) {
     sendResponse({ ok: false, error: String(error && error.message ? error.message : error) });

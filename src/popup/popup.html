@@ -8,42 +8,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HeyGen Audio Extractor</title>
+    <title>HeyGen Audio &amp; Video Extractor</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <header class="header">
       <img class="header__logo" src="../../icons/icon128.png" alt="" width="36" height="36" />
       <div class="header__text">
-        <h1 class="title">Audio Extractor</h1>
+        <h1 class="title">Audio &amp; Video Extractor</h1>
         <p class="subtitle">HeyGen</p>
       </div>
       <button id="themeToggle" class="header__toggle" type="button"
         title="Toggle light / dark mode" aria-label="Toggle light or dark mode"></button>
     </header>
 
-    <!-- Status banner: shows "not supported", audio counts, and errors. -->
-    <div id="banner" class="banner banner--info" role="status" aria-live="polite"></div>
-
-    <div class="toolbar">
-      <button id="fetchBtn" class="btn btn--primary" type="button">
-        <span class="btn__icon" aria-hidden="true">&#x21bb;</span>
-        Fetch Audio
+    <!-- Tabs: two separate sections for Audio and Video. -->
+    <div class="tabs" role="tablist">
+      <button id="tabAudio" class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="audio">
+        🎵 Audio
       </button>
-      <button id="downloadAllBtn" class="btn btn--ghost" type="button" hidden>
-        <span class="btn__icon" aria-hidden="true">&#x2193;</span>
-        Download All
+      <button id="tabVideo" class="tab" type="button" role="tab" aria-selected="false" data-tab="video">
+        🎬 Video
       </button>
     </div>
 
-    <!-- Audio items (Audio 1, Audio 2, ...) are injected here by popup.js. -->
-    <ul id="results" class="audio-list" aria-label="Discovered audio files"></ul>
+    <!-- Shared status banner (counts / errors / not-supported). -->
+    <div id="banner" class="banner banner--info" role="status" aria-live="polite"></div>
 
-    <!-- Reminder shown once audio is found: the chunks must be combined. -->
-    <p id="combineNote" class="combine-note" hidden>
-      <span class="combine-note__icon" aria-hidden="true">🧩</span>
-      <span>Download every file and combine the chunks <strong>in order</strong> (Audio 1, 2, 3 …) to get the complete voiceover.</span>
-    </p>
+    <!-- ============ AUDIO PANEL ============ -->
+    <section id="panel-audio" class="panel" role="tabpanel" aria-labelledby="tabAudio">
+      <div class="toolbar">
+        <button id="fetchAudioBtn" class="btn btn--primary" type="button">
+          <span class="btn__icon" aria-hidden="true">&#x21bb;</span>
+          Fetch Audio
+        </button>
+        <button id="downloadAllAudioBtn" class="btn btn--ghost" type="button" hidden>
+          <span class="btn__icon" aria-hidden="true">&#x2193;</span>
+          Download All
+        </button>
+      </div>
+
+      <ul id="audioResults" class="media-list" aria-label="Discovered audio files"></ul>
+
+      <p id="audioNote" class="combine-note" hidden>
+        <span class="combine-note__icon" aria-hidden="true">🧩</span>
+        <span>Download every file and combine the chunks <strong>in order</strong> (Audio 1, 2, 3 …) to get the complete voiceover.</span>
+      </p>
+    </section>
+
+    <!-- ============ VIDEO PANEL ============ -->
+    <section id="panel-video" class="panel" role="tabpanel" aria-labelledby="tabVideo" hidden>
+      <!-- Rendering steps (collapsible): the scene must be fully rendered first. -->
+      <details class="steps">
+        <summary class="steps__title">🎬 How to get the video</summary>
+        <div class="steps__body">
+          <ol class="steps__list">
+            <li>Add your <strong>script</strong> and choose your <strong>avatar &amp; voice</strong>.</li>
+            <li>Open the <strong>Audio</strong> tab and <strong>play / generate the voice</strong> so the audio finishes rendering.</li>
+            <li>Once the voice is ready, <strong>render the scene</strong> by clicking the <strong>Render Scene</strong> button so the video finishes rendering.</li>
+            <li>Come back here and click <strong>Fetch Video</strong>.</li>
+          </ol>
+          <p class="steps__warn">⚠️ The scene must be <strong>fully rendered</strong> first — otherwise no video will appear yet.</p>
+        </div>
+      </details>
+
+      <div class="toolbar">
+        <button id="fetchVideoBtn" class="btn btn--primary" type="button">
+          <span class="btn__icon" aria-hidden="true">&#x21bb;</span>
+          Fetch Video
+        </button>
+        <button id="downloadAllVideoBtn" class="btn btn--ghost" type="button" hidden>
+          <span class="btn__icon" aria-hidden="true">&#x2193;</span>
+          Download All
+        </button>
+      </div>
+
+      <ul id="videoResults" class="media-list" aria-label="Discovered video files"></ul>
+    </section>
 
     <!-- White-label footer / author credit. -->
     <footer class="footer">

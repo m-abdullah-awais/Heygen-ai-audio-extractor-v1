@@ -20,3 +20,8 @@ export const PARENT_WEBSITE_URL = "https://app.heygen.com";
 
 // Only audio whose address begins with this prefix is collected (internal use).
 export const AUDIO_URL_PREFIX = "https://resource2.heygen.ai";
+
+// Rendered scene videos are served from this host. Only video addresses that
+// begin with this prefix are collected (internal use). The full address,
+// including its signed query string, is preserved so playback/download work.
+export const VIDEO_URL_PREFIX = "https://heygen-resources-prod.s3-accelerate.amazonaws.com";
