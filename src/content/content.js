@@ -7,10 +7,10 @@
  *
  * It listens for a { type: "SCAN", prefix } message from the popup and replies
  * with { urls: [...] }: every UNIQUE URL on the page that starts with the given
- * prefix. The same routine is used for both audio and video — only the prefix
+ * prefix. The same routine is used for both audio and video; only the prefix
  * the popup passes in differs.
  *
- * The detection / scanning / matching logic here is UNCHANGED — it still finds
+ * The detection / scanning / matching logic here is UNCHANGED; it still finds
  * exactly the same URLs as before. The popup converts these internal URLs into
  * audio / video items; the URLs themselves are never shown to the user.
  *
@@ -53,7 +53,7 @@ function cleanUrl(url) {
 function buildSearchCorpus() {
   const chunks = [];
 
-  // 1. The full serialized DOM — catches anything rendered into markup.
+  // 1. The full serialized DOM (catches anything rendered into markup).
   chunks.push(document.documentElement.outerHTML);
 
   // 2. Every attribute of every element. This covers src, href, style,
@@ -74,7 +74,7 @@ function buildSearchCorpus() {
     chunks.push(a.href);
   }
 
-  // 4. Inline <script> contents — React/Next.js hydration data and config
+  // 4. Inline <script> contents: React/Next.js hydration data and config
   //    blobs commonly embed media URLs as JSON strings here.
   for (const script of document.querySelectorAll("script")) {
     if (script.textContent) chunks.push(script.textContent);

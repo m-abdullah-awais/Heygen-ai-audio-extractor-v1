@@ -11,8 +11,8 @@ A simple Chrome extension that finds the **audio** and the **rendered video** in
 No copying. No opening tabs. Just **Fetch**, listen/preview, and download. ✨
 
 The popup has **two tabs**:
-- 🎵 **Audio** — every voiceover chunk from your draft.
-- 🎬 **Video** — the final rendered scene video (available once the scene is fully rendered).
+- 🎵 **Audio**: every voiceover chunk from your draft.
+- 🎬 **Video**: the final rendered scene video (available once the scene is fully rendered).
 
 > 👨‍💻 Built by **Muhammad Abdullah Awais** · Full Stack Developer · 🌐 [www.abdullahawais.com](https://www.abdullahawais.com)
 
@@ -198,7 +198,7 @@ audio-04.mp3
 
 > 💡 **Good to know:** The numbering matches the order shown in the extension (Audio 1 → `audio-01`, Audio 2 → `audio-02`, and so on). The extension keeps the original file format whenever possible.
 
-> ⚠️ **Important — Keep the Order!**
+> ⚠️ **Important: Keep the Order!**
 >
 > The audio pieces must stay in the **same order** (Audio 1, Audio 2, Audio 3, …) so they sound right when you join them together.
 

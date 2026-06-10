@@ -5,7 +5,7 @@
  * -----------------------------------------------------------------------------
  * popup.js: popup controller (ES module).
  *
- * The page scan returns raw URLs (see content.js — that logic is unchanged and
+ * The page scan returns raw URLs (see content.js; that logic is unchanged and
  * is reused for both audio and video, only the prefix differs). This controller
  * keeps those URLs INTERNAL and presents each one as a friendly, numbered,
  * playable + downloadable item. The user never sees a URL.
