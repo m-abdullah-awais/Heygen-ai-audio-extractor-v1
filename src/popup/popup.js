@@ -182,11 +182,14 @@ function friendlyFileName(cfg, index, url) {
   return `${cfg.label.toLowerCase()}-${num}-${batchSuffix}.${ext}`;
 }
 function downloadFile(url, filename) {
+  // Route through the background worker so the filename is enforced via
+  // onDeterminingFilename (beats the server's Content-Disposition name).
   return new Promise((resolve, reject) => {
-    chrome.downloads.download({ url, filename, saveAs: false, conflictAction: "uniquify" }, (id) => {
+    chrome.runtime.sendMessage({ type: "DOWNLOAD", url, filename }, (resp) => {
       const err = chrome.runtime.lastError;
-      if (err || id === undefined) reject(new Error(err ? err.message : "Download failed."));
-      else resolve(id);
+      if (err) reject(new Error(err.message));
+      else if (!resp || !resp.ok) reject(new Error(resp && resp.error ? resp.error : "Download failed."));
+      else resolve(resp.id);
     });
   });
 }
@@ -255,6 +258,13 @@ function buildCard(cfg, url, index) {
   player.className = cfg.isVideo ? "media-item__video" : "media-item__player";
   player.controls = true;
   player.preload = cfg.isVideo ? "metadata" : "none";
+  // Remove the player's own download option so the only way to download is our
+  // button (which names files audio-01-… / video-01-…). The native menu would
+  // otherwise save the file under its raw URL name (e.g. "id=<uuid>.mp3").
+  player.setAttribute("controlsList", "nodownload noplaybackrate");
+  player.disablePictureInPicture = true;
+  // Also block the right-click "Save as…" route for the same reason.
+  player.addEventListener("contextmenu", (e) => e.preventDefault());
   player.src = url;
 
   li.append(head, player);
